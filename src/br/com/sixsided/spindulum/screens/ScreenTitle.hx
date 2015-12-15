@@ -173,6 +173,7 @@ class ScreenTitle extends Sprite
         textInstructions.selectable = false;
         textInstructions.x = ( Main.gameScreenW / 2 ) - ( textInstructions.width / 2 );
         textInstructions.y = 196;
+        textInstructions.height = 256;
         
         // Add to stage
         addChild( textInstructions );

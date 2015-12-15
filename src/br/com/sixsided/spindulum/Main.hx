@@ -187,7 +187,11 @@ class Main extends Sprite
         channel = new SoundChannel();
         
         // Playing sound
-        channel = song.play( 0, 0, new SoundTransform( 1 ) );
+        #if ( cpp || neko )
+            channel = song.play( 0, 0, new SoundTransform( 1 ) );
+        #else
+            channel = song.play( 0, 0, new SoundTransform( 1 ) );
+        #end
         
         // Sound loop check
         channel.addEventListener( Event.SOUND_COMPLETE, loopSong );
@@ -335,16 +339,16 @@ class Main extends Sprite
      */
     public function loopSong( e:Event ):Void 
     {
-        // Remove this event
+        // Remove event listener
         channel.removeEventListener( Event.SOUND_COMPLETE, loopSong );
-        // Recreates channel
-        channel = new SoundChannel();
         // Playing the song
-        channel = song.play( 24000, 0, new SoundTransform( 1 ) );
-        // Add this event
+        #if ( cpp || neko )
+            channel = song.play( 24, 0, new SoundTransform( 1 ) );
+        #else
+            channel = song.play( 24000, 0, new SoundTransform( 1 ) );
+        #end
+        // Add event listener
         channel.addEventListener( Event.SOUND_COMPLETE, loopSong );
-        // Trace
-        trace( 'Looped' );
     }
     
     /**
