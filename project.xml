@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+	<meta title="LD#34 | Spindulum" package="br.com.sixsided.spindulum.SXSpindulum" version="1.0.0" company="Fabio Yuiti Goto" />
+	
+	<!-- output -->
+	<app main="br.com.sixsided.spindulum.Main" file="SXSpindulum" path="bin" />
+	
+	<window background="#ffffff" fps="60" />
+	<window width="640" height="640" />
+	<window orientation="landscape" vsync="true" antialiasing="3" if="cpp" />
+	
+	<!-- classpath, haxe libs -->
+	<source path="src" />
+	<haxelib name="openfl" />
+	<haxelib name="actuate" />
+	
+	<!-- assets -->
+	<icon path="assets/sixsided.svg" />
+	<assets path="assets/fonts" rename="fonts" />
+	<assets path="assets/image" rename="image" />
+	<assets path="assets/sound" rename="sound" />
+	
+	<!-- optimize output
+	<haxeflag name="-dce full" /> -->
+</project>
