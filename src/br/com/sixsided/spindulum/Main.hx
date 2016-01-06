@@ -1,21 +1,19 @@
 package br.com.sixsided.spindulum;
 
 // Importing packages
-import br.com.sixsided.spindulum.entities.Collector;
-import br.com.sixsided.spindulum.entities.Explosion;
-import br.com.sixsided.spindulum.entities.ExplosionFragment;
-import br.com.sixsided.spindulum.entities.InitCounter;
-import br.com.sixsided.spindulum.entities.Player;
-import br.com.sixsided.spindulum.entities.Projectile;
+import br.com.sixsided.spindulum.entities.Button;
 import br.com.sixsided.spindulum.screens.ScreenGame;
 import br.com.sixsided.spindulum.screens.ScreenOver;
 import br.com.sixsided.spindulum.screens.ScreenTitle;
 import br.com.sixsided.spindulum.screens.ScreenWins;
 import motion.Actuate;
 import openfl.Assets;
+import openfl.display.MovieClip;
 import openfl.display.Sprite;
 import openfl.events.Event;
 import openfl.events.KeyboardEvent;
+import openfl.events.MouseEvent;
+import openfl.events.TouchEvent;
 import openfl.geom.Point;
 import openfl.Lib;
 import openfl.media.Sound;
@@ -53,18 +51,15 @@ import openfl.text.Font;
  * 
  * @author     Fabio Yuiti Goto
  * @link       http://sixsided.com.br
- * @version    1.0.0
+ * @version    1.2.0
  * @copy       ®2015 SIXSIDED Developments
  */
 class Main extends Sprite 
 {
-    public var tsts:InitCounter;
-    public var plyr:Player;
-    public static var nums:Int = 1;
-    public var inputs:Array<Bool>;
-    public var explode:Bool = false;
-    public var expl:Explosion;
-    public var projectile:Projectile;
+    /**
+     * Handles input controls.
+     */
+    public static var inputs:Array<Bool>;
     
     /**
      * Stores the main stage width.
@@ -158,6 +153,16 @@ class Main extends Sprite
     public static var sfxBlue:Sound;
     
     /**
+     * Android only, L button.
+     */
+    public static var buttonL:Button;
+    
+    /**
+     * Android only, R button.
+     */
+    public static var buttonR:Button;
+    
+    /**
      * Main constructor.
      */
 	public function new() 
@@ -165,8 +170,15 @@ class Main extends Sprite
         // Calling super constructor
 		super();
         
+        // Initialize input array
+        inputs = new Array();
+        
         // Defines the game font
-        gameFont = Assets.getFont( "fonts/oswald-light.ttf" );
+        #if android
+            gameFont = new Font( "fonts/oswald-light.ttf" );
+        #else
+            gameFont = Assets.getFont( "fonts/oswald-light.ttf" );
+        #end
         
         // Initializes all sounds
         soundTitle = Assets.getSound( "sound/sound-title.wav" );
@@ -204,6 +216,64 @@ class Main extends Sprite
             // If not, adds main event as an event listener
             addEventListener( Event.ADDED_TO_STAGE, init );
         }
+        
+        #if ( android )
+            // If android, draws a background, to determine width of this object
+            graphics.beginFill( 0x000000, 0 );
+            graphics.drawRect( 0, 0, gameScreenW, gameScreenH );
+            graphics.endFill();
+            
+            // Resizes the screen to the current window size
+            this.width = stage.stageHeight;
+            this.height = stage.stageHeight;
+            
+            // Centering the game window
+            this.x = ( stage.stageWidth / 2 ) - ( stage.stageHeight / 2 );
+            this.y = ( stage.stageHeight / 2 ) - ( stage.stageHeight / 2 );
+            
+            trace( stage.stageWidth );
+            
+            // Defining button width
+            var buttonW:Float = ( ( stage.stageWidth ) - ( stage.stageHeight ) ) / 2;
+            var buttonH:Float = stage.stageHeight;
+            
+            // Initialize buttons
+            buttonL = new Button( "<" );
+            buttonR = new Button( ">" );
+            
+            // Adds to stage before resizing
+            stage.addChild( buttonL );
+            stage.addChild( buttonR );
+            
+            // Resizing
+            cast( buttonL, Button ).width = buttonW;
+            cast( buttonL, Button ).height = buttonH;
+            cast( buttonR, Button ).width = buttonW;
+            cast( buttonR, Button ).height = buttonH;
+            
+            // Defining keycodes to emulate L/R strokes
+            cast( buttonL, Button ).keycode = 37;
+            cast( buttonR, Button ).keycode = 39;
+            
+            // Positioning L
+            buttonL.x = 0;
+            buttonL.y = 0;
+            
+            // Positioning R
+            buttonR.x = stage.stageWidth - buttonW;
+            buttonR.y = 0;
+            
+            // Add event listeners
+            buttonL.addEventListener( TouchEvent.TOUCH_BEGIN, mouseDown );
+            buttonL.addEventListener( TouchEvent.TOUCH_END, mouseUp );
+            
+            buttonR.addEventListener( TouchEvent.TOUCH_BEGIN, mouseDown );
+            buttonR.addEventListener( TouchEvent.TOUCH_END, mouseUp );
+        #else
+            // Adds the key up/down events
+            stage.addEventListener( KeyboardEvent.KEY_DOWN, keysDn );
+            stage.addEventListener( KeyboardEvent.KEY_UP, keysUp );
+        #end
         
         #if debug
             // Add FPS Monitor
@@ -329,6 +399,70 @@ class Main extends Sprite
                 // Adds the first screen event handler
                 addEventListener( Event.ENTER_FRAME, screenInitEvents );
         }
+        
+        // Swap z-index
+        setChildIndex( screenHandle, 0 );
+    }
+    
+    /**
+     * Key pressed event.
+     * 
+     * @param e
+     *      KeyboardEvent handle
+     */
+    public function keysDn( e:KeyboardEvent ):Void 
+    {
+        // If this key isn't pressed
+        if ( !inputs[e.keyCode] ) {
+            // Define as pressed
+            inputs[e.keyCode] = true;
+        }
+    }
+    
+    /**
+     * Key lifted event.
+     * 
+     * @param e
+     *      KeyboardEvent handle
+     */
+    public function keysUp( e:KeyboardEvent ):Void 
+    {
+        // If this key is pressed
+        if ( inputs[e.keyCode] ) {
+            // Define as unpressed
+            inputs[e.keyCode] = false;
+        }
+    }
+    
+    /**
+     * 
+     * @param e 
+     *      MouseEvent handle
+     */
+    public function mouseDown( e:TouchEvent ):Void 
+    {
+        // If this key is pressed
+        if ( !inputs[e.target.parent.keycode] ) {
+            trace( "PRESSED" );
+            // Define as unpressed
+            inputs[e.target.parent.keycode] = true;
+        }
+    }
+    
+    /**
+     * 
+     * @param e 
+     *      MouseEvent handle
+     */
+    public function mouseUp( e:TouchEvent ):Void 
+    {
+        trace( e.target );
+        // If this key is pressed
+        if ( inputs[e.target.parent.keycode] ) {
+            trace( "LIFTED!" );
+            // Define as unpressed
+            inputs[e.target.parent.keycode] = false;
+        }
     }
     
     /**
@@ -359,6 +493,10 @@ class Main extends Sprite
      */
     public function screenInitEvents( e:Event ):Void 
     {
+        #if debug
+            trace( this.width );
+        #end
+        
         // If, by chance, the screen is finished
         if ( screenHandle.isFinished ) {
             // Removes the screen handle and set it to null
@@ -387,6 +525,10 @@ class Main extends Sprite
      */
     public function screenGameEvents( e:Event ):Void 
     {
+        #if debug
+            trace( this.width );
+        #end
+        
         // Checks game status
         if ( 
             screenHandle.playerIsDead 

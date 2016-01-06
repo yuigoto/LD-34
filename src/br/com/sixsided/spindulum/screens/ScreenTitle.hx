@@ -6,9 +6,7 @@ import motion.Actuate;
 import openfl.Assets;
 import openfl.display.Sprite;
 import openfl.events.Event;
-import openfl.events.KeyboardEvent;
 import openfl.media.Sound;
-import openfl.text.AntiAliasType;
 import openfl.text.TextField;
 import openfl.text.TextFieldAutoSize;
 import openfl.text.TextFieldType;
@@ -23,7 +21,7 @@ import openfl.text.TextFormatAlign;
  * 
  * @author     Fabio Yuiti Goto
  * @link       http://sixsided.com.br
- * @version    1.0.0
+ * @version    1.2.0
  * @copy       ®2015 SIXSIDED Developments
  */
 class ScreenTitle extends Sprite 
@@ -77,9 +75,13 @@ class ScreenTitle extends Sprite
         super();
         
         // Determines font name
-        textFont = ( null != Main.gameFont && null != Main.gameFont.fontName ) 
-                 ? Main.gameFont.fontName 
-                 : "_sans";
+        #if android
+            textFont = "_sans";
+        #else
+            textFont = ( null != Main.gameFont && null != Main.gameFont.fontName ) 
+                     ? Main.gameFont.fontName 
+                     : "_sans";
+        #end
         
         // If stage is set
         if ( null != stage ) {
@@ -113,7 +115,6 @@ class ScreenTitle extends Sprite
         );
         textName.text = "SPINDULUM";
         textName.autoSize = TextFieldAutoSize.CENTER;
-        textName.antiAliasType = AntiAliasType.ADVANCED;
         textName.type = TextFieldType.DYNAMIC;
         textName.multiline = false;
         textName.selectable = false;
@@ -135,7 +136,6 @@ class ScreenTitle extends Sprite
         );
         textLD.text = "A GAME MADE FOR LUDUM DARE #34 • THEME(S): 2 BUTTON CONTROLS + GROWING";
         textLD.autoSize = TextFieldAutoSize.CENTER;
-        textLD.antiAliasType = AntiAliasType.ADVANCED;
         textLD.type = TextFieldType.DYNAMIC;
         textLD.multiline = false;
         textLD.selectable = false;
@@ -167,7 +167,6 @@ class ScreenTitle extends Sprite
         textInstructions.defaultTextFormat = instructionsFormat;
         textInstructions.text = "You're a red dot attached to a collector.\nOrange dots makes you grow, Blue makes you shrink.\nRotate your collector left and right to gobble the orange dots, but don't let it touch the blue dots.\nGobble as much as orange dots needed to grow and fill the gray area.\nWhen you're big enough, press LEFT AND RIGHT to explode and advance to the next level.\nIf you shrink to less than half the initial size, it's game over.";
         textInstructions.autoSize = TextFieldAutoSize.CENTER;
-        textInstructions.antiAliasType = AntiAliasType.ADVANCED;
         textInstructions.type = TextFieldType.DYNAMIC;
         textInstructions.multiline = true;
         textInstructions.selectable = false;
@@ -192,7 +191,6 @@ class ScreenTitle extends Sprite
         );
         textInit.text = "PRESS LEFT OR RIGHT TO START";
         textInit.autoSize = TextFieldAutoSize.CENTER;
-        textInit.antiAliasType = AntiAliasType.ADVANCED;
         textInit.type = TextFieldType.DYNAMIC;
         textInit.multiline = false;
         textInit.selectable = false;
@@ -214,7 +212,6 @@ class ScreenTitle extends Sprite
         );
         textDedication.text = "Dedicated to my beloved, Glauce";
         textDedication.autoSize = TextFieldAutoSize.CENTER;
-        textDedication.antiAliasType = AntiAliasType.ADVANCED;
         textDedication.type = TextFieldType.DYNAMIC;
         textDedication.multiline = false;
         textDedication.selectable = false;
@@ -236,7 +233,6 @@ class ScreenTitle extends Sprite
         );
         textCredit.text = "®2015 SIXSIDED Developments / Fabio Y. Goto";
         textCredit.autoSize = TextFieldAutoSize.CENTER;
-        textCredit.antiAliasType = AntiAliasType.ADVANCED;
         textCredit.type = TextFieldType.DYNAMIC;
         textCredit.multiline = false;
         textCredit.selectable = false;
@@ -249,21 +245,21 @@ class ScreenTitle extends Sprite
         // Play title
         Main.soundTitle.play();
         
-        // Add Event Listener
-        stage.addEventListener( KeyboardEvent.KEY_DOWN, keysDownListener );
+        // Adds event listener to check keypress
+        addEventListener( Event.ENTER_FRAME, keysDownListener );
     }
     
     /**
      * Keydown event, to start the game.
      * 
      * @param e
-     *      KeyboardEvent handle
+     *      Event handle
      */
-    public function keysDownListener( e:KeyboardEvent ):Void 
+    public function keysDownListener( e:Event ):Void 
     {
-        if ( e.keyCode == 37 || e.keyCode == 39 ) {
+        if ( Main.inputs[37] || Main.inputs[39] ) {
             // Removes this event listener
-            stage.removeEventListener( KeyboardEvent.KEY_DOWN, keysDownListener );
+            removeEventListener( Event.ENTER_FRAME, keysDownListener );
             
             // Tweens the alpha
             Actuate.tween(

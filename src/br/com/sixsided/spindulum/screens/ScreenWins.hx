@@ -6,9 +6,7 @@ import motion.Actuate;
 import openfl.Assets;
 import openfl.display.Sprite;
 import openfl.events.Event;
-import openfl.events.KeyboardEvent;
 import openfl.media.Sound;
-import openfl.text.AntiAliasType;
 import openfl.text.TextField;
 import openfl.text.TextFieldAutoSize;
 import openfl.text.TextFieldType;
@@ -23,7 +21,7 @@ import openfl.text.TextFormatAlign;
  * 
  * @author     Fabio Yuiti Goto
  * @link       http://sixsided.com.br
- * @version    1.0.0
+ * @version    1.2.0
  * @copy       ®2015 SIXSIDED Developments
  */
 class ScreenWins extends Sprite 
@@ -67,9 +65,13 @@ class ScreenWins extends Sprite
         super();
         
         // Determines font name
-        textFont = ( null != Main.gameFont && null != Main.gameFont.fontName ) 
-                 ? Main.gameFont.fontName 
-                 : "_sans";
+        #if android
+            textFont = "_sans";
+        #else
+            textFont = ( null != Main.gameFont && null != Main.gameFont.fontName ) 
+                     ? Main.gameFont.fontName 
+                     : "_sans";
+        #end
         
         // If stage is set
         if ( null != stage ) {
@@ -103,7 +105,6 @@ class ScreenWins extends Sprite
         );
         textWins.text = "YOU BEAT THE GAME!";
         textWins.autoSize = TextFieldAutoSize.CENTER;
-        textWins.antiAliasType = AntiAliasType.ADVANCED;
         textWins.type = TextFieldType.DYNAMIC;
         textWins.multiline = false;
         textWins.selectable = false;
@@ -125,7 +126,6 @@ class ScreenWins extends Sprite
         );
         textScore.text = "YEP, THIS GAME HAS ONLY 10 LEVELS (FOR NOW)";
         textScore.autoSize = TextFieldAutoSize.CENTER;
-        textScore.antiAliasType = AntiAliasType.ADVANCED;
         textScore.type = TextFieldType.DYNAMIC;
         textScore.multiline = false;
         textScore.selectable = false;
@@ -147,7 +147,6 @@ class ScreenWins extends Sprite
         );
         textThanks.text = "THANK YOU FOR PLAYING SPINDULUM!";
         textThanks.autoSize = TextFieldAutoSize.CENTER;
-        textThanks.antiAliasType = AntiAliasType.ADVANCED;
         textThanks.type = TextFieldType.DYNAMIC;
         textThanks.multiline = false;
         textThanks.selectable = false;
@@ -169,7 +168,6 @@ class ScreenWins extends Sprite
         );
         textInit.text = "PRESS LEFT OR RIGHT TO RETURN TO THE TITLE SCREEN";
         textInit.autoSize = TextFieldAutoSize.CENTER;
-        textInit.antiAliasType = AntiAliasType.ADVANCED;
         textInit.type = TextFieldType.DYNAMIC;
         textInit.multiline = false;
         textInit.selectable = false;
@@ -182,21 +180,21 @@ class ScreenWins extends Sprite
         // Play title
         Main.soundThanks.play();
         
-        // Add Event Listener
-        stage.addEventListener( KeyboardEvent.KEY_DOWN, keysDownListener );
+        // Adds event listener to check keypress
+        addEventListener( Event.ENTER_FRAME, keysDownListener );
     }
     
     /**
      * Keydown event, to start the game.
      * 
      * @param e
-     *      KeyboardEvent handle
+     *      Event handle
      */
-    public function keysDownListener( e:KeyboardEvent ):Void 
+    public function keysDownListener( e:Event ):Void 
     {
-        if ( e.keyCode == 37 || e.keyCode == 39 ) {
+        if ( Main.inputs[37] || Main.inputs[39] ) {
             // Removes this event listener
-            stage.removeEventListener( KeyboardEvent.KEY_DOWN, keysDownListener );
+            removeEventListener( Event.ENTER_FRAME, keysDownListener );
             
             // Tweens the alpha
             Actuate.tween(

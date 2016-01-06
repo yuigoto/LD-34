@@ -4,7 +4,6 @@ import motion.Actuate;
 import openfl.Assets;
 import openfl.display.Sprite;
 import openfl.events.Event;
-import openfl.text.AntiAliasType;
 import openfl.text.Font;
 import openfl.text.TextField;
 import openfl.text.TextFieldAutoSize;
@@ -20,7 +19,7 @@ import openfl.text.TextFormatAlign;
  * 
  * @author     Fabio Yuiti Goto
  * @link       http://sixsided.com.br
- * @version    1.0.0
+ * @version    1.2.0
  * @copy       ®2015 SIXSIDED Developments
  */
 class InitCounter extends Sprite 
@@ -190,7 +189,6 @@ class InitCounter extends Sprite
             );
             textInit.text = "READY";
             textInit.autoSize = TextFieldAutoSize.CENTER;
-            textInit.antiAliasType = AntiAliasType.ADVANCED;
             textInit.type = TextFieldType.DYNAMIC;
             textInit.multiline = false;
             textInit.selectable = false;
@@ -294,7 +292,6 @@ class InitCounter extends Sprite
             );
             textGo.text = "GO!";
             textGo.autoSize = TextFieldAutoSize.CENTER;
-            textGo.antiAliasType = AntiAliasType.ADVANCED;
             textGo.type = TextFieldType.DYNAMIC;
             textGo.multiline = false;
             textGo.selectable = false;

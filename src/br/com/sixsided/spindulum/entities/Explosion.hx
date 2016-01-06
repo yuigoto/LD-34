@@ -15,7 +15,7 @@ import openfl.geom.Point;
  * 
  * @author     Fabio Yuiti Goto
  * @link       http://sixsided.com.br
- * @version    1.0.0
+ * @version    1.2.0
  * @copy       ®2015 SIXSIDED Developments
  */
 class Explosion extends Sprite 
@@ -112,12 +112,23 @@ class Explosion extends Sprite
         // Generating particles
         for ( i in 0...particlesNumber ) {
             // Temporary particle variable
-            var temp:ExplosionFragment = new ExplosionFragment(
-                // Radius
-                Main.randomNumber( 16, 48 ), 
-                // Speed
-                Main.randomNumber( 8, 32 )
-            );
+            #if android
+                var temp:ExplosionFragment = new ExplosionFragment(
+                    // Radius
+                    Main.randomNumber( 4, 12 ), 
+                    // Speed
+                    Main.randomNumber( 8, 32 )
+                );
+                temp.width = temp.width * 4;
+                temp.height = temp.height * 4;
+            #else
+                var temp:ExplosionFragment = new ExplosionFragment(
+                    // Radius
+                    Main.randomNumber( 16, 48 ), 
+                    // Speed
+                    Main.randomNumber( 8, 32 )
+                );
+            #end
             
             // Defining position (relative to this class's object)
             temp.x = 0;
@@ -145,76 +156,80 @@ class Explosion extends Sprite
      */
     public function explodeInit( e:Event ):Void 
     {
-        // Initial loop
-        for ( i in 0...particle.length ) {
-            // If particle isn't null
-            if ( particle[i] != null ) {
-                // Reducing the particle's width
-                if ( particle[i].frag_body.width > 1 ) {
-                    particle[i].frag_body.width -= 2;
-                }
-                
-                // Reducing the particle's height
-                if ( particle[i].frag_body.height > 1 ) {
-                    particle[i].frag_body.height -= 2;
-                }
-                
-                // Declaring speed variable
-                var currspd:Int = 0;
-                
-                // Getting particle speed 
-                #if flash
-                    currspd = particle[i].frag_velocity;
-                #else
-                    currspd = cast(
-                        particle[i], 
-                        ExplosionFragment 
-                    ).frag_velocity;
-                #end
-                
-                // Defining new position
-                var newPos:Point = Main.vertexFinder(
-                    particle[i].rotation, 
-                    currspd, 
-                    particle[i].x, 
-                    particle[i].y 
-                );
-                
-                // Moving the particle
-                particle[i].x = newPos.x;
-                particle[i].y = newPos.y;
-                
-                // Checking the need to remove or not a particle
-                if (
-                    particle[i].frag_body.width <= 8 
-                    || particle[i].frag_body.height <= 8 
-                ) {
-                    // Removes child from stage
-                    removeChild( particle[i] );
-                    
-                    // Sets particle as null
-                    particle[i] = null;
-                } else {
-                    // Reducing the ball's speed, if isn't removed
-                    if ( currspd > 1 ) {
-                        #if flash 
-                            particle[i].frag_velocity -= 1;
-                        #else 
-                            cast( 
-                                particle[i], 
-                                ExplosionFragment
-                            ).frag_velocity -= 1;
-                        #end
+        #if !android
+            // Initial loop
+            for ( i in 0...particle.length ) {
+                // If particle isn't null
+                if ( particle[i] != null ) {
+                    // Reducing the particle's width
+                    if ( particle[i].frag_body.width > 1 ) {
+                        particle[i].frag_body.width -= 2;
                     }
+                    
+                    // Reducing the particle's height
+                    if ( particle[i].frag_body.height > 1 ) {
+                        particle[i].frag_body.height -= 2;
+                    }
+                    
+                    // Declaring speed variable
+                    var currspd:Int = 0;
+                    
+                    // Getting particle speed 
+                    #if flash
+                        currspd = particle[i].frag_velocity;
+                    #else
+                        currspd = cast(
+                            particle[i], 
+                            ExplosionFragment 
+                        ).frag_velocity;
+                    #end
+                    
+                    // Defining new position
+                    var newPos:Point = Main.vertexFinder(
+                        particle[i].rotation, 
+                        currspd, 
+                        particle[i].x, 
+                        particle[i].y 
+                    );
+                    
+                    // Moving the particle
+                    particle[i].x = newPos.x;
+                    particle[i].y = newPos.y;
+                    
+                    // Checking the need to remove or not a particle
+                    if (
+                        particle[i].frag_body.width <= 8 
+                        || particle[i].frag_body.height <= 8 
+                    ) {
+                        // Removes child from stage
+                        removeChild( particle[i] );
+                        
+                        // Sets particle as null
+                        particle[i] = null;
+                    } else {
+                        // Reducing the ball's speed, if isn't removed
+                        if ( currspd > 1 ) {
+                            #if flash 
+                                particle[i].frag_velocity -= 1;
+                            #else 
+                                cast( 
+                                    particle[i], 
+                                    ExplosionFragment
+                                ).frag_velocity -= 1;
+                            #end
+                        }
+                    }
+                } else {
+                    // In case of null particle, is trigger isn't set, set it
+                    if ( !triggersFade ) triggersFade = true;
+                    
+                    // Triggers the fade to black
+                    fadeToDark();
                 }
-            } else {
-                // In case of null particle, is trigger isn't set, set it
-                if ( !triggersFade ) triggersFade = true;
-                
-                // Triggers the fade to black
-                fadeToDark();
             }
-        }
+        #else
+            fadeToDark();
+        #end
     }
     
     /**
@@ -262,24 +277,26 @@ class Explosion extends Sprite
             
         // Change alpha
         if ( fadeDark.alpha < 1 ) fadeDark.alpha += 0.25;
-            
+        
         // If fade width is less than stage width
         if ( fadeDark.width < Main.gameScreenW * 1.5 ) {
             // Increase the fade
             fadeDark.width += fadeDarkVelocity;
             fadeDark.height += fadeDarkVelocity;
         } else {
-            // Removes all fragments from stage
-            for ( i in 0...particle.length ) {
-                // If this fragment isn't null
-                if ( particle[i] != null ) {
-                    // Removes this fragment from stage
-                    removeChild( particle[i] );
-                    
-                    // Sets it as null
-                    particle[i] = null;
+            #if !android
+                // Removes all fragments from stage
+                for ( i in 0...particle.length ) {
+                    // If this fragment isn't null
+                    if ( particle[i] != null ) {
+                        // Removes this fragment from stage
+                        removeChild( particle[i] );
+                        
+                        // Sets it as null
+                        particle[i] = null;
+                    }
                 }
-            }
+            #end
             
             // Defines that this element is covering the screen
             isCovering = true;

@@ -5,36 +5,14 @@ import openfl.display.Sprite;
 import openfl.events.Event;
 
 /**
- * SIXSIDED :: [SX] Gobble 
+ * SIXSIDED :: [SX] Spindulum :: Collector
  * ============================================================
  * 
- * This is a simple and abstract action game, made for LD#34.
- * 
- * Themes for this Ludum Dare are:
- * - Two button controls;
- * - Growing;
- * 
- * Controls:
- * - Left;
- * - Right;
- * 
- * You're a tiny dot attached to a collector.
- * 
- * Collect the orange dots, while avoiding the blue dots, to make yourself 
- * grow in size.
- * 
- * You've got to grow at the minimum size of the gray area before you're able 
- * to press "LEFT" and "RIGHT" at the same time, so you can explode and advance 
- * to the next level.
- * 
- * Every level, the gray area increases and the average speed for the dots also 
- * increase.
- * 
- * Can you make it to the 10th level?
+ * Player body collector.
  * 
  * @author     Fabio Yuiti Goto
  * @link       http://sixsided.com.br
- * @version    1.0.0
+ * @version    1.2.0
  * @copy       ®2015 SIXSIDED Developments
  */
 class Collector extends Sprite 

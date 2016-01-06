@@ -15,7 +15,7 @@ import openfl.geom.Matrix;
  * 
  * @author     Fabio Yuiti Goto
  * @link       http://sixsided.com.br
- * @version    1.0.0
+ * @version    1.2.0
  * @copy       ®2015 SIXSIDED Developments
  */
 class Projectile extends Sprite 
@@ -65,37 +65,39 @@ class Projectile extends Sprite
         graphics.beginFill( bulletColour, 0 );
         graphics.drawCircle( 0, 0, 64 );
         
-        // Drawing the gradient first
-        bulletTail = new Sprite();
-        
-        // Matrix for drawing
-        var matrix:Matrix = new Matrix();
-        matrix.createGradientBox( 64, 16, 0, -48, -6 );
-        
-        // Gradient fill
-        bulletTail.graphics.beginGradientFill(
-            // Gradient type
-            GradientType.LINEAR, 
-            // Colors array
-            [ bulletColour, bulletColour ], 
-            // Alphas array
-            [ 0, 25 ], 
-            // Ratios array
-            [ 0, 225 ], 
-            matrix, 
-            SpreadMethod.PAD
-        );
-        bulletTail.graphics.drawRect(
-            -64, 
-            -8, 
-            64, 
-            16
-        );
-        bulletTail.graphics.endFill();
-        bulletTail.alpha = .50;
-        
-        // Add tail to screen
-        addChild( bulletTail );
+        #if !debug
+            // Drawing the gradient first
+            bulletTail = new Sprite();
+            
+            // Matrix for drawing
+            var matrix:Matrix = new Matrix();
+            matrix.createGradientBox( 64, 16, 0, -48, -6 );
+            
+            // Gradient fill
+            bulletTail.graphics.beginGradientFill(
+                // Gradient type
+                GradientType.LINEAR, 
+                // Colors array
+                [ bulletColour, bulletColour ], 
+                // Alphas array
+                [ 0, 25 ], 
+                // Ratios array
+                [ 0, 225 ], 
+                matrix, 
+                SpreadMethod.PAD
+            );
+            bulletTail.graphics.drawRect(
+                -64, 
+                -8, 
+                64, 
+                16
+            );
+            bulletTail.graphics.endFill();
+            bulletTail.alpha = .50;
+            
+            // Add tail to screen
+            addChild( bulletTail );
+        #end
         
         // Drawing the body
         bulletBody = new Sprite();

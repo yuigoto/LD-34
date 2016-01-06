@@ -9,11 +9,9 @@ import br.com.sixsided.spindulum.Main;
 import motion.Actuate;
 import openfl.display.Sprite;
 import openfl.events.Event;
-import openfl.events.KeyboardEvent;
 import openfl.geom.Point;
 import openfl.media.Sound;
 import openfl.media.SoundTransform;
-import openfl.text.AntiAliasType;
 import openfl.text.TextField;
 import openfl.text.TextFieldAutoSize;
 import openfl.text.TextFieldType;
@@ -28,7 +26,7 @@ import openfl.text.TextFormatAlign;
  * 
  * @author     Fabio Yuiti Goto
  * @link       http://sixsided.com.br
- * @version    1.0.0
+ * @version    1.2.0
  * @copy       ®2015 SIXSIDED Developments
  */
 class ScreenGame extends Sprite 
@@ -37,11 +35,6 @@ class ScreenGame extends Sprite
      * Font name to be used in the fields.
      */
     public var textFont:String;
-    
-    /**
-     * Input buttons array.
-     */
-    public var inputs:Array<Bool>;
     
     /**
      * Init counter handle.
@@ -113,16 +106,17 @@ class ScreenGame extends Sprite
      */
     public function new() 
     {
-        // Initialize inputs array
-        inputs = new Array();
-        
         // Initialize projectile array
         projectileList = new Array();
         
         // Determines font name
-        textFont = ( null != Main.gameFont && null != Main.gameFont.fontName ) 
-                 ? Main.gameFont.fontName 
-                 : "_sans";
+        #if android
+            textFont = "_sans";
+        #else
+            textFont = ( null != Main.gameFont && null != Main.gameFont.fontName ) 
+                     ? Main.gameFont.fontName 
+                     : "_sans";
+        #end
         
         // Calling super constructor
 		super();
@@ -194,10 +188,6 @@ class ScreenGame extends Sprite
             
             // Adds the game running events
             addEventListener( Event.ENTER_FRAME, gamePlayEvents );
-            
-            // Also adds the key up/down events
-            stage.addEventListener( KeyboardEvent.KEY_DOWN, keysDn );
-            stage.addEventListener( KeyboardEvent.KEY_UP, keysUp );
         }
     }
     
@@ -220,28 +210,53 @@ class ScreenGame extends Sprite
         }
         
         // Rotates
-        if ( inputs[37] && !inputs[39] ) {
-            // Rotates left
-            if ( gamePlayer.velocity > 0 ) {
-                gamePlayer.velocity -= 1;
-            } else if ( gamePlayer.velocity > -10 ) {
-                gamePlayer.velocity -= 1;
+        #if android
+            if ( Main.inputs[37] && !Main.inputs[39] ) {
+                // Rotates left
+                if ( gamePlayer.velocity > 0 ) {
+                    gamePlayer.velocity -= 1;
+                } else if ( gamePlayer.velocity > -4 ) {
+                    gamePlayer.velocity -= 1;
+                }
+            } else if ( Main.inputs[39] && !Main.inputs[37] ) {
+                // Rotates right
+                if ( gamePlayer.velocity < 0 ) {
+                    gamePlayer.velocity += 1;
+                } else if ( gamePlayer.velocity < 4 ) {
+                    gamePlayer.velocity += 1;
+                }
+            } else if ( !Main.inputs[37] && !Main.inputs[39] ) {
+                // Deaccelerates player
+                if ( gamePlayer.velocity > 0 ) {
+                    gamePlayer.velocity -= 1;
+                } else if ( gamePlayer.velocity < 0 ) {
+                    gamePlayer.velocity += 1;
+                }
             }
-        } else if ( inputs[39] && !inputs[37] ) {
-            // Rotates right
-            if ( gamePlayer.velocity < 0 ) {
-                gamePlayer.velocity += 1;
-            } else if ( gamePlayer.velocity < 10 ) {
-                gamePlayer.velocity += 1;
+        #else
+            if ( Main.inputs[37] && !Main.inputs[39] ) {
+                // Rotates left
+                if ( gamePlayer.velocity > 0 ) {
+                    gamePlayer.velocity -= 1;
+                } else if ( gamePlayer.velocity > -8 ) {
+                    gamePlayer.velocity -= 1;
+                }
+            } else if ( Main.inputs[39] && !Main.inputs[37] ) {
+                // Rotates right
+                if ( gamePlayer.velocity < 0 ) {
+                    gamePlayer.velocity += 1;
+                } else if ( gamePlayer.velocity < 8 ) {
+                    gamePlayer.velocity += 1;
+                }
+            } else if ( !Main.inputs[37] && !Main.inputs[39] ) {
+                // Deaccelerates player
+                if ( gamePlayer.velocity > 0 ) {
+                    gamePlayer.velocity -= 1;
+                } else if ( gamePlayer.velocity < 0 ) {
+                    gamePlayer.velocity += 1;
+                }
             }
-        } else if ( !inputs[37] && !inputs[39] ) {
-            // Deaccelerates player
-            if ( gamePlayer.velocity > 0 ) {
-                gamePlayer.velocity -= 1;
-            } else if ( gamePlayer.velocity < 0 ) {
-                gamePlayer.velocity += 1;
-            }
-        }
+        #end
         
         // Rotating
         if ( gamePlayer.velocity != 0 ) {
@@ -251,7 +266,11 @@ class ScreenGame extends Sprite
         // Generating mobs
         if ( projectileCounter < 16 ) { 
             // Check for random number
-            var rand:Int = Main.randomNumber( 0, 512 );
+            #if android
+                var rand:Int = Main.randomNumber( 0, 64 );
+            #else
+                var rand:Int = Main.randomNumber( 0, 512 );
+            #end
             
             // Generate
             var generate:Bool = false;
@@ -262,16 +281,29 @@ class ScreenGame extends Sprite
             // Boolean handle
             var isEnemy:Bool = false;
             
-            if ( ( rand % 16 ) == 0 ) {
-                // Define color
-                colour = 0x204a85;
-                // Defines if is enemy or not
-                isEnemy = true;
-            } else if ( ( rand % 12 ) == 0 ) {
-                colour = 0xce5c00;
-                // Defines if is enemy or not
-                isEnemy = false;
-            }
+            #if android
+                if ( ( rand % 8 ) == 0 ) {
+                    // Define color
+                    colour = 0x204a85;
+                    // Defines if is enemy or not
+                    isEnemy = true;
+                } else if ( ( rand % 6 ) == 0 ) {
+                    colour = 0xce5c00;
+                    // Defines if is enemy or not
+                    isEnemy = false;
+                }
+            #else
+                if ( ( rand % 16 ) == 0 ) {
+                    // Define color
+                    colour = 0x204a85;
+                    // Defines if is enemy or not
+                    isEnemy = true;
+                } else if ( ( rand % 12 ) == 0 ) {
+                    colour = 0xce5c00;
+                    // Defines if is enemy or not
+                    isEnemy = false;
+                }
+            #end
             
             if ( colour > 0 ) {
                 // Generate mob
@@ -453,7 +485,11 @@ class ScreenGame extends Sprite
                 }
             } else {
                 // Generate new projectile
-                var rand:Int = Main.randomNumber( 0, 512 );
+                #if android
+                    var rand:Int = Main.randomNumber( 0, 64 );
+                #else
+                    var rand:Int = Main.randomNumber( 0, 512 );
+                #end
                 
                 // Generate
                 var generate:Bool = false;
@@ -464,16 +500,29 @@ class ScreenGame extends Sprite
                 // Boolean handle
                 var isEnemy:Bool = false;
                 
-                if ( ( rand % 16 ) == 0 ) {
-                    // Define color
-                    colour = 0x204a85;
-                    // Defines if is enemy or not
-                    isEnemy = true;
-                } else if ( ( rand % 12 ) == 0 ) {
-                    colour = 0xce5c00;
-                    // Defines if is enemy or not
-                    isEnemy = false;
-                }
+                #if android
+                    if ( ( rand % 8 ) == 0 ) {
+                        // Define color
+                        colour = 0x204a85;
+                        // Defines if is enemy or not
+                        isEnemy = true;
+                    } else if ( ( rand % 6 ) == 0 ) {
+                        colour = 0xce5c00;
+                        // Defines if is enemy or not
+                        isEnemy = false;
+                    }
+                #else
+                    if ( ( rand % 16 ) == 0 ) {
+                        // Define color
+                        colour = 0x204a85;
+                        // Defines if is enemy or not
+                        isEnemy = true;
+                    } else if ( ( rand % 12 ) == 0 ) {
+                        colour = 0xce5c00;
+                        // Defines if is enemy or not
+                        isEnemy = false;
+                    }
+                #end
                 
                 if ( colour > 0 ) {
                     // Generate mob
@@ -530,7 +579,7 @@ class ScreenGame extends Sprite
         if ( !gameIsOver && !roundHasEnded ) {
             // Just some debug size increase
             #if debug
-                if ( inputs[32] ) {
+                if ( Main.inputs[32] ) {
                     Actuate.tween(
                         gamePlayer.playerBody, 
                         .5, 
@@ -541,7 +590,7 @@ class ScreenGame extends Sprite
                     );
                 }
                 
-                if ( inputs[16] ) {
+                if ( Main.inputs[16] ) {
                     Actuate.tween(
                         gamePlayer.playerBody, 
                         .5, 
@@ -556,7 +605,11 @@ class ScreenGame extends Sprite
             // Check if round has ended
             if ( gameIsOver && playerIsDead ) {
                 // Initializes game explosion
-                gameExplosion = new Explosion( 32 );
+                #if android
+                    gameExplosion = new Explosion( 16 );
+                #else
+                    gameExplosion = new Explosion( 32 );
+                #end
                 
                 // Adds to stage
                 addChild( gameExplosion );
@@ -571,16 +624,16 @@ class ScreenGame extends Sprite
                 // Removes this event listener
                 removeEventListener( Event.ENTER_FRAME, gamePlayEvents );
                 
-                // Removes all keyboard events
-                stage.removeEventListener( KeyboardEvent.KEY_DOWN, keysDn );
-                stage.removeEventListener( KeyboardEvent.KEY_UP, keysUp );
-                
                 // Adds the event finisher
                 addEventListener( Event.ENTER_FRAME, gameFinishEvents );
             } else {
-                if ( inputs[37] && inputs[39] && roundHasEnded ) {
+                if ( Main.inputs[37] && Main.inputs[39] && roundHasEnded ) {
                     // Initializes game explosion
-                    gameExplosion = new Explosion( 128 );
+                    #if android
+                        gameExplosion = new Explosion( 64 );
+                    #else
+                        gameExplosion = new Explosion( 128 );
+                    #end
                     
                     // Adds explosion to the stage
                     addChild( gameExplosion );
@@ -599,10 +652,6 @@ class ScreenGame extends Sprite
                     
                     // Removes this event listener
                     removeEventListener( Event.ENTER_FRAME, gamePlayEvents );
-                    
-                    // Removes all keyboard events
-                    stage.removeEventListener( KeyboardEvent.KEY_DOWN, keysDn );
-                    stage.removeEventListener( KeyboardEvent.KEY_UP, keysUp );
                     
                     // Adds the event finisher
                     addEventListener( Event.ENTER_FRAME, gameFinishEvents );
@@ -718,36 +767,6 @@ class ScreenGame extends Sprite
     }
     
     /**
-     * Key pressed event.
-     * 
-     * @param e
-     *      KeyboardEvent handle
-     */
-    public function keysDn( e:KeyboardEvent ):Void 
-    {
-        // If this key isn't pressed
-        if ( !inputs[e.keyCode] ) {
-            // Define as pressed
-            inputs[e.keyCode] = true;
-        }
-    }
-    
-    /**
-     * Key lifted event.
-     * 
-     * @param e
-     *      KeyboardEvent handle
-     */
-    public function keysUp( e:KeyboardEvent ):Void 
-    {
-        // If this key is pressed
-        if ( inputs[e.keyCode] ) {
-            // Define as unpressed
-            inputs[e.keyCode] = false;
-        }
-    }
-    
-    /**
      * Initializes all game objects.
      */
     public function initializeGameObjects():Void 
@@ -780,7 +799,6 @@ class ScreenGame extends Sprite
         );
         textLevelA.text = "LEVEL";
         textLevelA.autoSize = TextFieldAutoSize.CENTER;
-        textLevelA.antiAliasType = AntiAliasType.ADVANCED;
         textLevelA.type = TextFieldType.DYNAMIC;
         textLevelA.multiline = false;
         textLevelA.selectable = false;
@@ -805,7 +823,6 @@ class ScreenGame extends Sprite
                         ? "0" + ( Main.levelCurrent + 1 )
                         : Std.string( Main.levelCurrent + 1 );
         textLevelB.autoSize = TextFieldAutoSize.CENTER;
-        textLevelB.antiAliasType = AntiAliasType.ADVANCED;
         textLevelB.type = TextFieldType.DYNAMIC;
         textLevelB.multiline = false;
         textLevelB.selectable = false;

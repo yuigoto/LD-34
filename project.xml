@@ -6,7 +6,9 @@
 	<app main="br.com.sixsided.spindulum.Main" file="SXSpindulum" path="bin" />
 	
 	<window background="#ffffff" fps="60" />
-	<window width="640" height="640" />
+	<window width="640" height="640" unless="android" />
+	<window width="0" height="0" if="android" />
+	<window orientation="landscape" vsync="false" antialiasing="0" if="android" />
 	<window orientation="landscape" vsync="true" antialiasing="3" if="cpp" />
 	
 	<!-- classpath, haxe libs -->
