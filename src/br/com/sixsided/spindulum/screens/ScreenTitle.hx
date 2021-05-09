@@ -210,7 +210,7 @@ class ScreenTitle extends Sprite
             false, 
             false
         );
-        textDedication.text = "Dedicated to my beloved, Glauce";
+        textDedication.text = "                               ";
         textDedication.autoSize = TextFieldAutoSize.CENTER;
         textDedication.type = TextFieldType.DYNAMIC;
         textDedication.multiline = false;

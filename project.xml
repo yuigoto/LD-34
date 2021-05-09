@@ -19,7 +19,9 @@
 	<!-- assets -->
 	<icon path="assets/sixsided.svg" />
 	<assets path="assets/fonts" rename="fonts" />
+	<!-- 
 	<assets path="assets/image" rename="image" />
+	-->
 	<assets path="assets/sound" rename="sound" />
 	
 	<!-- optimize output
